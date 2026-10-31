@@ -1,0 +1,366 @@
+openapi: 3.0.3
+info:
+  title: Miniblog API
+  version: 1.0.0
+  description: API REST para administrar autores y publicaciones de un miniblog.
+servers:
+  - url: http://localhost:3000
+    description: Entorno local
+paths:
+  /health:
+    get:
+      summary: Comprobar el estado de la API y PostgreSQL
+      responses:
+        '200':
+          description: API y base de datos disponibles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  database:
+                    type: string
+                    example: connected
+        '503':
+          description: No se pudo conectar con PostgreSQL
+  /authors:
+    get:
+      summary: Listar autores
+      responses:
+        '200':
+          description: Lista de autores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+    post:
+      summary: Crear un autor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorInput'
+      responses:
+        '201':
+          description: Autor creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Ya existe un autor con ese email
+  /authors/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Consultar un autor
+      responses:
+        '200':
+          description: Autor encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Actualizar un autor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorInput'
+      responses:
+        '200':
+          description: Autor actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Ya existe un autor con ese email
+    delete:
+      summary: Eliminar un autor
+      responses:
+        '204':
+          description: Autor eliminado
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /posts:
+    get:
+      summary: Listar publicaciones
+      responses:
+        '200':
+          description: Lista de publicaciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      summary: Crear una publicación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInput'
+      responses:
+        '201':
+          description: Publicación creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /posts/author/{authorId}:
+    parameters:
+      - name: authorId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      summary: Listar publicaciones con los datos del autor
+      responses:
+        '200':
+          description: Publicaciones del autor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostWithAuthor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /posts/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Consultar una publicación
+      responses:
+        '200':
+          description: Publicación encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Actualizar una publicación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInput'
+      responses:
+        '200':
+          description: Publicación actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Eliminar una publicación
+      responses:
+        '204':
+          description: Publicación eliminada
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /posts/{postId}/comments:
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      summary: Listar comentarios de una publicación
+      responses:
+        '200':
+          description: Lista de comentarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      summary: Crear un comentario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [author_id, content]
+              properties:
+                author_id:
+                  type: integer
+                  minimum: 1
+                content:
+                  type: string
+                  minLength: 1
+      responses:
+        '201':
+          description: Comentario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+  responses:
+    BadRequest:
+      description: Solicitud o datos inválidos
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        bio:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+    AuthorInput:
+      type: object
+      required: [name, email]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 150
+        bio:
+          type: string
+          nullable: true
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+        author_id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        published:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+    PostWithAuthor:
+      allOf:
+        - $ref: '#/components/schemas/Post'
+        - type: object
+          properties:
+            author_name:
+              type: string
+            author_email:
+              type: string
+              format: email
+            author_bio:
+              type: string
+              nullable: true
+    PostInput:
+      type: object
+      required: [title, content, author_id]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        content:
+          type: string
+          minLength: 1
+        author_id:
+          type: integer
+          minimum: 1
+        published:
+          type: boolean
+          default: false
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        post_id:
+          type: integer
+        author_id:
+          type: integer
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        author_name:
+          type: string
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
