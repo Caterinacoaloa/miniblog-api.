@@ -24,7 +24,7 @@ API REST desarrollada como proyecto de práctica para administrar autores, publi
 - Los **comentarios** pertenecen a una publicación y a un autor.
 - Al eliminar un autor o una publicación, PostgreSQL elimina en cascada sus registros relacionados.
 
-Las tablas y sus relaciones están definidas en [`setup.sql`](./setup.sql).
+Las tablas y sus relaciones están definidas en [`setup.sql`](./setup.sql). El esquema incluye claves foráneas con borrado en cascada e índices para las columnas de relación. PostgreSQL crea automáticamente índices para las claves primarias y la restricción única de email.
 
 ## Requisitos
 
@@ -167,6 +167,12 @@ En una base nueva, la tabla de comentarios se crea con `setup.sql`. Si ya tenía
 psql -U postgres -d miniblog -f .\db\comments.sql
 ```
 
+Para agregar los índices de las claves foráneas a una base existente, ejecutá también este script idempotente:
+
+```powershell
+psql -U postgres -d miniblog -f .\db\indexes.sql
+```
+
 ### Estado del servicio
 
 | Método | Ruta | Descripción |
@@ -196,4 +202,18 @@ Las pruebas usan Supertest y reemplazan las consultas a la base de datos por sim
 
 ## Despliegue
 
-El despliegue en Railway está pendiente. Para ejecutarlo, se necesita una cuenta habilitada y una base PostgreSQL remota. El servicio debe iniciar con `npm start` y tener configuradas las variables `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` y `PGPASSWORD` con los datos de la base remota. No subas `.env` al repositorio.
+El despliegue en Railway está pendiente y requiere una cuenta habilitada. Cuando esté disponible:
+
+1. En Railway, creá un proyecto nuevo con **Deploy from GitHub repo** y seleccioná este repositorio.
+2. Agregá un servicio PostgreSQL al proyecto.
+3. En las variables del servicio de la API, configurá `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` y `PGPASSWORD` usando referencias a las variables del servicio PostgreSQL. Railway permite referencias con el formato `${{NombreDelServicio.PGHOST}}`; reemplazá `NombreDelServicio` por el nombre que tenga tu servicio de base de datos.
+4. Railway inicia la API con `npm start`. El servidor escucha en el puerto asignado por Railway y `/health` permite comprobar la conexión.
+5. Creá las tablas en la base PostgreSQL de Railway ejecutando `setup.sql` contra la URL de conexión de esa base. Por ejemplo, desde PowerShell, si tenés `psql` instalado y configuraste temporalmente la URL de conexión proporcionada por Railway en `DATABASE_URL`:
+
+   ```powershell
+   $env:DATABASE_URL = "URL_DE_CONEXION_DE_RAILWAY"
+   psql $env:DATABASE_URL -f .\setup.sql
+   Remove-Item Env:DATABASE_URL
+   ```
+
+   Usá una URL de conexión accesible desde tu computadora y mantenela como dato secreto: no la escribas en archivos del proyecto ni la subas a GitHub. Ejecutá `setup.sql` una sola vez en la base remota. Si la base ya existía, aplicá las migraciones necesarias en lugar de volver a crear las tablas.

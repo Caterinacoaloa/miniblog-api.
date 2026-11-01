@@ -40,5 +40,8 @@ CREATE TABLE comments (
  content TEXT NOT NULL CHECK (LENGTH(TRIM(content)) > 0),
 
  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-
 );
+
+CREATE INDEX posts_author_id_idx ON posts (author_id);
+CREATE INDEX comments_post_id_idx ON comments (post_id);
+CREATE INDEX comments_author_id_idx ON comments (author_id);
