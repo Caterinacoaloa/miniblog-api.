@@ -17,6 +17,21 @@ API REST desarrollada como proyecto de práctica para administrar autores, publi
 - Supertest y `node:test`
 - OpenAPI 3.0
 
+## Estructura del proyecto
+
+```text
+.
+├── data/             # Datos de ejemplo usados por el proyecto
+├── db/               # Conexión a PostgreSQL y scripts SQL adicionales
+├── routes/           # Rutas y validaciones HTTP
+├── services/         # Consultas SQL y lógica de acceso a datos
+├── test/             # Pruebas automatizadas de las rutas
+├── openapi.yaml      # Documentación de la API
+├── setup.sql         # Creación de tablas y relaciones
+├── seed.sql          # Datos iniciales de ejemplo
+└── server.js         # Configuración e inicio de Express
+```
+
 ## Modelo de datos
 
 - Un **autor** puede tener muchas publicaciones.
@@ -97,7 +112,13 @@ El archivo `.env.example` contiene valores de ejemplo, no credenciales reales.
 
 ## Endpoints
 
-La especificación completa está en [`openapi.yaml`](./openapi.yaml). Podés visualizarla con Swagger Editor.
+La especificación completa está en [`openapi.yaml`](./openapi.yaml). Para verla con Swagger Editor:
+
+1. Abrí [Swagger Editor](https://editor.swagger.io/).
+2. Elegí **File > Import File** y seleccioná `openapi.yaml` de este proyecto.
+3. La documentación interactiva mostrará las rutas, parámetros y respuestas.
+
+La API todavía no está desplegada, por lo que Swagger Editor documenta las rutas pero no puede enviar pedidos a una URL pública hasta completar el despliegue.
 
 ### Autores
 
@@ -200,20 +221,29 @@ npm.cmd test
 
 Las pruebas usan Supertest y reemplazan las consultas a la base de datos por simulaciones; no eliminan ni modifican los datos locales.
 
-## Despliegue
+## Despliegue en Railway
 
-El despliegue en Railway está pendiente y requiere una cuenta habilitada. Cuando esté disponible:
+El despliegue está pendiente hasta tener acceso a Railway. Cuando la cuenta esté habilitada:
 
 1. En Railway, creá un proyecto nuevo con **Deploy from GitHub repo** y seleccioná este repositorio.
 2. Agregá un servicio PostgreSQL al proyecto.
-3. En las variables del servicio de la API, configurá `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` y `PGPASSWORD` usando referencias a las variables del servicio PostgreSQL. Railway permite referencias con el formato `${{NombreDelServicio.PGHOST}}`; reemplazá `NombreDelServicio` por el nombre que tenga tu servicio de base de datos.
-4. Railway inicia la API con `npm start`. El servidor escucha en el puerto asignado por Railway y `/health` permite comprobar la conexión.
-5. Creá las tablas en la base PostgreSQL de Railway ejecutando `setup.sql` contra la URL de conexión de esa base. Por ejemplo, desde PowerShell, si tenés `psql` instalado y configuraste temporalmente la URL de conexión proporcionada por Railway en `DATABASE_URL`:
+3. En las variables del servicio de la API, configurá `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` y `PGPASSWORD` con referencias a las variables del servicio PostgreSQL. Por ejemplo: `${{Postgres.PGHOST}}`. Reemplazá `Postgres` por el nombre real de tu servicio de base de datos.
+4. Railway inicia la API con `npm start` y asigna el puerto. Para comprobarla desde internet, en el servicio de la API abrí **Settings > Networking > Generate Domain**. Railway mostrará la URL pública de la API, con un formato similar a `https://nombre-de-tu-app.up.railway.app`. Probá esa dirección agregando `/health`.
+5. La conexión **interna** a PostgreSQL se configura con las variables del servicio de base de datos, como `PGHOST`; Railway las proporciona para la comunicación privada entre servicios. No uses la dirección interna de la base como URL pública de la API.
+6. Creá las tablas en PostgreSQL ejecutando `setup.sql` contra la base de Railway. Para ejecutarlo desde tu computadora necesitás `psql` y una URL de conexión pública de PostgreSQL, si Railway la ofrece o habilitás el acceso público. Por ejemplo:
 
    ```powershell
-   $env:DATABASE_URL = "URL_DE_CONEXION_DE_RAILWAY"
+   $env:DATABASE_URL = "URL_PUBLICA_DE_POSTGRES_DE_RAILWAY"
    psql $env:DATABASE_URL -f .\setup.sql
    Remove-Item Env:DATABASE_URL
    ```
 
-   Usá una URL de conexión accesible desde tu computadora y mantenela como dato secreto: no la escribas en archivos del proyecto ni la subas a GitHub. Ejecutá `setup.sql` una sola vez en la base remota. Si la base ya existía, aplicá las migraciones necesarias en lugar de volver a crear las tablas.
+   Si Railway no ofrece una URL pública o preferís no habilitarla, ejecutá el SQL desde un entorno conectado a la red privada de Railway. Mantené cualquier URL de conexión como un secreto: no la escribas en archivos del proyecto ni la subas a GitHub. Ejecutá `setup.sql` una sola vez en la base remota.
+
+## Uso de herramientas de IA
+
+Durante el desarrollo se usó un asistente de IA como apoyo para revisar los requisitos, explicar conceptos de Git, PostgreSQL y Railway, mejorar la redacción del README y proponer índices SQL. La estudiante revisó los cambios y ejecutó las pruebas disponibles. La IA fue una herramienta de apoyo; el código y su funcionamiento deben poder ser explicados por la estudiante.
+
+## Repositorio
+
+El código fuente y el historial de cambios están disponibles en [GitHub](https://github.com/Caterinacoaloa/miniblog-api.).
