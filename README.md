@@ -242,7 +242,7 @@ El despliegue está pendiente hasta tener acceso a Railway. Cuando la cuenta est
 
 ## Uso de herramientas de IA
 
-Durante el desarrollo se usó un asistente de IA como apoyo para revisar los requisitos, explicar conceptos de Git, PostgreSQL y Railway, mejorar la redacción del README y proponer índices SQL. La estudiante revisó los cambios y ejecutó las pruebas disponibles. La IA fue una herramienta de apoyo; el código y su funcionamiento deben poder ser explicados por la estudiante.
+Para realizar este proyecto usé GitHub Copilot como apoyo para resolver dudas y entender algunos pasos de Express, PostgreSQL, Git y Railway. También me ayudó a mejorar la documentación y a revisar algunas partes del código. Usé sus respuestas como orientación mientras trabajaba en el proyecto.
 
 ## Repositorio
 
