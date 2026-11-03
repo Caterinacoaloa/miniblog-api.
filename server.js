@@ -22,6 +22,10 @@ app.use('/authors', authorsRouter);
 app.use('/posts', postsRouter);
 app.use('/posts/:postId/comments', commentsRouter);
 
+app.use((req, res) => {
+  res.status(404).json({ error: 'Ruta no encontrada.' });
+});
+
 app.use((error, req, res, next) => {
   if (error.code === '23505') {
     return res.status(409).json({ error: 'Ya existe un autor con ese email.' });

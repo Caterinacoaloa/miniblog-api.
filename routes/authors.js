@@ -47,7 +47,7 @@ function validateAuthor(body) {
 function authorInput(body) {
   return {
     name: body.name.trim(),
-    email: body.email.trim(),
+    email: body.email.trim().toLowerCase(),
     bio: body.bio ?? null,
   };
 }

@@ -2,7 +2,7 @@
   "name": "miniblog",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "db:check": "node db.js",
     "start": "node server.js",

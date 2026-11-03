@@ -4,7 +4,7 @@ CREATE TABLE authors (
 
  name VARCHAR(100) NOT NULL,
 
- email VARCHAR(150) UNIQUE NOT NULL,
+ email VARCHAR(150) NOT NULL,
 
  bio TEXT,
 
@@ -42,6 +42,7 @@ CREATE TABLE comments (
  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE UNIQUE INDEX authors_email_lower_idx ON authors (LOWER(email));
 CREATE INDEX posts_author_id_idx ON posts (author_id);
 CREATE INDEX comments_post_id_idx ON comments (post_id);
 CREATE INDEX comments_author_id_idx ON comments (author_id);

@@ -59,7 +59,7 @@ test('POST /authors valida y crea un autor', async (t) => {
 
   const response = await request(app)
     .post('/authors')
-    .send({ name: ' Ana ', email: ' ana@example.com ' });
+    .send({ name: ' Ana ', email: ' Ana@Example.COM ' });
 
   assert.equal(response.status, 201);
   assert.deepEqual(queryArguments[1], ['Ana', 'ana@example.com', null]);

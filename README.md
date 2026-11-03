@@ -39,7 +39,7 @@ API REST desarrollada como proyecto de práctica para administrar autores, publi
 - Los **comentarios** pertenecen a una publicación y a un autor.
 - Al eliminar un autor o una publicación, PostgreSQL elimina en cascada sus registros relacionados.
 
-Las tablas y sus relaciones están definidas en [`setup.sql`](./setup.sql). El esquema incluye claves foráneas con borrado en cascada e índices para las columnas de relación. PostgreSQL crea automáticamente índices para las claves primarias y la restricción única de email.
+Las tablas y sus relaciones están definidas en [`setup.sql`](./setup.sql). El esquema incluye claves foráneas con borrado en cascada e índices para las columnas de relación. El email de autor es único sin distinguir entre mayúsculas y minúsculas.
 
 ## Requisitos
 
@@ -71,6 +71,12 @@ Los siguientes comandos están escritos para PowerShell en Windows.
    ```
 
    Ejecutá el esquema una sola vez por base de datos: el script crea las tablas y no está pensado para ejecutarse repetidamente sobre una base que ya las tiene.
+
+   Si ya tenés una base creada con una versión anterior del esquema, aplicá la migración del email una sola vez:
+
+   ```powershell
+   psql -U postgres -d miniblog -f .\db\email-case-insensitive.sql
+   ```
 
 4. Opcionalmente, cargar los datos de ejemplo:
 
@@ -140,7 +146,7 @@ Ejemplo para crear o actualizar un autor:
 }
 ```
 
-El nombre y el email son obligatorios; el email debe ser único.
+El nombre y el email son obligatorios; el email debe ser único sin importar las mayúsculas o minúsculas.
 
 ### Publicaciones
 
