@@ -1,16 +1,5 @@
-const express = require('express');
-const posts = require('../services/posts');
-
-const router = express.Router();
-
-function parseId(value) {
-  if (!/^[1-9]\d*$/.test(value)) {
-    return null;
-  }
-
-  const id = Number(value);
-  return Number.isSafeInteger(id) ? id : null;
-}
+const posts = require('./posts.service');
+const parseId = require('../../utils/parse-id');
 
 function validatePost(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -49,22 +38,12 @@ function postInput(body) {
   };
 }
 
-router.get('/', async (req, res) => {
+async function list(req, res) {
   const result = await posts.listPosts();
-  res.status(200).json(result);
-});
-
-router.get('/author/:authorId', async (req, res) => {
-  const authorId = parseId(req.params.authorId);
-  if (authorId === null) {
-    return res.status(400).json({ error: 'El id del autor debe ser un entero positivo.' });
-  }
-
-  const result = await posts.listPostsByAuthor(authorId);
   return res.status(200).json(result);
-});
+}
 
-router.get('/:id', async (req, res) => {
+async function getById(req, res) {
   const id = parseId(req.params.id);
   if (id === null) {
     return res.status(400).json({ error: 'El id debe ser un entero positivo.' });
@@ -76,9 +55,19 @@ router.get('/:id', async (req, res) => {
   }
 
   return res.status(200).json(post);
-});
+}
 
-router.post('/', async (req, res) => {
+async function listByAuthor(req, res) {
+  const authorId = parseId(req.params.authorId);
+  if (authorId === null) {
+    return res.status(400).json({ error: 'El id del autor debe ser un entero positivo.' });
+  }
+
+  const result = await posts.listPostsByAuthor(authorId);
+  return res.status(200).json(result);
+}
+
+async function create(req, res) {
   const validationError = validatePost(req.body);
   if (validationError) {
     return res.status(400).json({ error: validationError });
@@ -86,9 +75,9 @@ router.post('/', async (req, res) => {
 
   const post = await posts.createPost(postInput(req.body));
   return res.status(201).json(post);
-});
+}
 
-router.put('/:id', async (req, res) => {
+async function update(req, res) {
   const id = parseId(req.params.id);
   if (id === null) {
     return res.status(400).json({ error: 'El id debe ser un entero positivo.' });
@@ -105,9 +94,9 @@ router.put('/:id', async (req, res) => {
   }
 
   return res.status(200).json(post);
-});
+}
 
-router.delete('/:id', async (req, res) => {
+async function remove(req, res) {
   const id = parseId(req.params.id);
   if (id === null) {
     return res.status(400).json({ error: 'El id debe ser un entero positivo.' });
@@ -119,6 +108,6 @@ router.delete('/:id', async (req, res) => {
   }
 
   return res.status(204).end();
-});
+}
 
-module.exports = router;
+module.exports = { list, getById, listByAuthor, create, update, remove };

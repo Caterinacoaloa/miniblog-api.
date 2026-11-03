@@ -2,10 +2,11 @@
   "name": "miniblog",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "src/app.js",
   "scripts": {
-    "db:check": "node db.js",
-    "start": "node server.js",
+    "db:check": "node scripts/check-database.js",
+    "db:migrate": "node src/db/run-migrations.js",
+    "start": "node src/server.js",
     "test": "node --test"
   },
   "keywords": [],

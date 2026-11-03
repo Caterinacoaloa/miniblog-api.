@@ -1,16 +1,5 @@
-const express = require('express');
-const comments = require('../services/comments');
-
-const router = express.Router({ mergeParams: true });
-
-function parseId(value) {
-  if (!/^[1-9]\d*$/.test(value)) {
-    return null;
-  }
-
-  const id = Number(value);
-  return Number.isSafeInteger(id) ? id : null;
-}
+const comments = require('./comments.service');
+const parseId = require('../../utils/parse-id');
 
 function validateComment(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -28,7 +17,7 @@ function validateComment(body) {
   return null;
 }
 
-router.get('/', async (req, res) => {
+async function listByPost(req, res) {
   const postId = parseId(req.params.postId);
   if (postId === null) {
     return res.status(400).json({ error: 'El id de la publicación debe ser un entero positivo.' });
@@ -36,9 +25,9 @@ router.get('/', async (req, res) => {
 
   const result = await comments.listCommentsByPost(postId);
   return res.status(200).json(result);
-});
+}
 
-router.post('/', async (req, res) => {
+async function create(req, res) {
   const postId = parseId(req.params.postId);
   if (postId === null) {
     return res.status(400).json({ error: 'El id de la publicación debe ser un entero positivo.' });
@@ -55,6 +44,6 @@ router.post('/', async (req, res) => {
     content: req.body.content.trim(),
   });
   return res.status(201).json(comment);
-});
+}
 
-module.exports = router;
+module.exports = { listByPost, create };

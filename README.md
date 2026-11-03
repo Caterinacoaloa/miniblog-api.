@@ -1,14 +1,17 @@
 # Miniblog API
 
-API REST desarrollada como proyecto de práctica para administrar autores, publicaciones y comentarios. Está construida con Node.js, Express y PostgreSQL, y permite trabajar con operaciones CRUD, validaciones de datos y pruebas automatizadas.
+API REST de práctica para administrar autores, publicaciones y comentarios. Está desarrollada con Node.js, Express y PostgreSQL.
 
-## Objetivos del proyecto
+## Funcionalidades
 
-- Conectar una aplicación Express con una base de datos PostgreSQL.
-- Implementar operaciones CRUD mediante consultas SQL parametrizadas.
-- Validar los datos recibidos y responder con códigos HTTP adecuados.
-- Probar las rutas con Node.js, `node:test` y Supertest.
-- Documentar la API con OpenAPI.
+- CRUD de autores y publicaciones.
+- Listado de publicaciones por autor.
+- Creación y listado de comentarios por publicación.
+- Validación de datos y respuestas HTTP consistentes.
+- Consultas SQL parametrizadas.
+- Migraciones de base de datos ejecutadas al iniciar el servidor.
+- Pruebas automatizadas con Supertest y `node:test`.
+- Documentación OpenAPI en [`openapi.yaml`](./openapi.yaml).
 
 ## Tecnologías utilizadas
 
@@ -17,118 +20,109 @@ API REST desarrollada como proyecto de práctica para administrar autores, publi
 - Supertest y `node:test`
 - OpenAPI 3.0
 
-## Estructura del proyecto
+## Estructura
 
 ```text
 .
-├── data/             # Arrays de ejemplo de una etapa inicial; la API actual usa PostgreSQL
-├── db/               # Conexión a PostgreSQL y scripts SQL adicionales
-├── routes/           # Rutas y validaciones HTTP
-├── services/         # Consultas SQL y lógica de acceso a datos
-├── test/             # Pruebas automatizadas de las rutas
-├── openapi.yaml      # Documentación de la API
-├── setup.sql         # Creación de tablas y relaciones
-├── seed.sql          # Datos iniciales de ejemplo
-└── server.js         # Configuración e inicio de Express
+├── database/
+│   ├── migrations/       # Esquema y cambios versionados de la base
+│   └── seeds/            # Datos de ejemplo opcionales
+├── scripts/              # Herramientas para revisar la conexión
+├── src/
+│   ├── config/           # Pool de PostgreSQL
+│   ├── db/               # Ejecutor de migraciones
+│   ├── middlewares/      # Manejo global de errores
+│   ├── modules/
+│   │   ├── authors/      # Rutas, controladores y servicios de autores
+│   │   ├── posts/        # Rutas, controladores y servicios de publicaciones
+│   │   └── comments/     # Rutas, controladores y servicios de comentarios
+│   ├── utils/            # Funciones compartidas
+│   ├── app.js            # Configuración de Express
+│   └── server.js         # Migraciones e inicio del servidor
+├── test/                 # Pruebas automatizadas
+├── openapi.yaml          # Especificación de la API
+└── package.json
 ```
+
+En cada módulo, `routes` conecta URLs con `controllers`; los controladores validan la solicitud y responden, mientras que los `services` contienen las consultas SQL.
 
 ## Modelo de datos
 
-- Un **autor** puede tener muchas publicaciones.
-- Cada **publicación** pertenece a un autor.
-- Los **comentarios** pertenecen a una publicación y a un autor.
-- Al eliminar un autor o una publicación, PostgreSQL elimina en cascada sus registros relacionados.
-
-Las tablas y sus relaciones están definidas en [`setup.sql`](./setup.sql). El esquema incluye claves foráneas con borrado en cascada e índices para las columnas de relación. El email de autor es único sin distinguir entre mayúsculas y minúsculas.
+- Un autor puede tener muchas publicaciones.
+- Cada publicación pertenece a un autor.
+- Cada comentario pertenece a una publicación y a un autor.
+- Las claves foráneas eliminan en cascada publicaciones y comentarios relacionados.
+- El email de autor es único sin distinguir mayúsculas y minúsculas.
 
 ## Requisitos
 
 - Node.js y npm
 - PostgreSQL
 
-## Instalación y ejecución local
+## Ejecución local en Windows
 
-Los siguientes comandos están escritos para PowerShell en Windows.
+Los siguientes comandos están pensados para PowerShell.
 
-1. Instalar las dependencias del proyecto:
+1. Instalá las dependencias:
 
    ```powershell
    npm.cmd install
    ```
 
-2. Crear la base de datos local:
+2. Creá una base PostgreSQL vacía:
 
    ```powershell
    createdb -U postgres miniblog
    ```
 
-   Si el comando `createdb` no está disponible, se puede crear la base desde pgAdmin o con `psql`.
+   También podés crearla desde pgAdmin.
 
-3. Crear las tablas en la base `miniblog`:
+3. Creá `.env` en la raíz tomando como referencia [`.env.example`](./.env.example) y completá los datos de tu PostgreSQL local. No compartas ni subas `.env`.
 
-   ```powershell
-   psql -U postgres -d miniblog -f .\setup.sql
-   ```
-
-   Ejecutá el esquema una sola vez por base de datos: el script crea las tablas y no está pensado para ejecutarse repetidamente sobre una base que ya las tiene.
-
-   Si ya tenés una base creada con una versión anterior del esquema, aplicá la migración del email una sola vez:
+4. Aplicá las migraciones:
 
    ```powershell
-   psql -U postgres -d miniblog -f .\db\email-case-insensitive.sql
+   npm.cmd run db:migrate
    ```
 
-4. Opcionalmente, cargar los datos de ejemplo:
+   El sistema registra las migraciones aplicadas en `schema_migrations`, por lo que no las repite al reiniciar.
+
+5. Opcionalmente, cargá datos de ejemplo una sola vez:
 
    ```powershell
-   psql -U postgres -d miniblog -f .\seed.sql
+   psql -U postgres -d miniblog -f .\database\seeds\001_seed.sql
    ```
 
-   Ejecutá este paso solo si todavía no cargaste los datos de ejemplo.
-
-5. Crear un archivo `.env` en la raíz del proyecto, tomando como referencia [`.env.example`](./.env.example). Completá las credenciales de tu PostgreSQL local. No compartas ni subas `.env`.
-
-6. Comprobar la conexión con PostgreSQL:
+6. Comprobá la conexión e iniciá la API:
 
    ```powershell
    npm.cmd run db:check
-   ```
-
-7. Iniciar el servidor:
-
-   ```powershell
    npm.cmd start
    ```
 
-La API queda disponible en `http://localhost:3000`. Para detener el servidor, presioná `Ctrl+C` en la terminal.
+La API local queda disponible en `http://localhost:3000`. Para detenerla, presioná `Ctrl+C`.
 
 ## Variables de entorno
 
-La aplicación requiere estas variables:
+La API requiere estas variables tanto localmente como en Render:
 
 | Variable | Descripción |
 |---|---|
-| `PGHOST` | Dirección del servidor PostgreSQL |
-| `PGPORT` | Puerto de PostgreSQL |
-| `PGDATABASE` | Nombre de la base de datos |
+| `PGHOST` | Host de PostgreSQL |
+| `PGPORT` | Puerto, normalmente `5432` |
+| `PGDATABASE` | Nombre de la base |
 | `PGUSER` | Usuario de PostgreSQL |
 | `PGPASSWORD` | Contraseña de PostgreSQL |
 
-El archivo `.env.example` contiene valores de ejemplo, no credenciales reales.
+`.env.example` contiene valores de ejemplo. Las credenciales reales van en `.env` local o en el panel de variables de Render, nunca en GitHub.
 
 ## Endpoints
 
-La especificación completa está en [`openapi.yaml`](./openapi.yaml). Para verla con Swagger Editor:
-
-1. Abrí [Swagger Editor](https://editor.swagger.io/).
-2. Elegí **File > Import File** y seleccioná `openapi.yaml` de este proyecto.
-3. La documentación interactiva mostrará las rutas, parámetros y respuestas.
-
-La API todavía no está desplegada, por lo que Swagger Editor documenta las rutas pero no puede enviar pedidos a una URL pública hasta completar el despliegue.
+La especificación completa está en [`openapi.yaml`](./openapi.yaml). Para verla de forma interactiva, abrí [Swagger Editor](https://editor.swagger.io/) e importá el archivo. La API debe estar desplegada para poder enviar solicitudes a una URL pública.
 
 ### Autores
 
-| Método | Ruta | Descripción |
+| Método | Ruta | Acción |
 |---|---|---|
 | `GET` | `/authors` | Listar autores |
 | `GET` | `/authors/:id` | Consultar un autor |
@@ -136,7 +130,7 @@ La API todavía no está desplegada, por lo que Swagger Editor documenta las rut
 | `PUT` | `/authors/:id` | Actualizar un autor |
 | `DELETE` | `/authors/:id` | Eliminar un autor |
 
-Ejemplo para crear o actualizar un autor:
+Ejemplo de autor:
 
 ```json
 {
@@ -146,20 +140,18 @@ Ejemplo para crear o actualizar un autor:
 }
 ```
 
-El nombre y el email son obligatorios; el email debe ser único sin importar las mayúsculas o minúsculas.
-
 ### Publicaciones
 
-| Método | Ruta | Descripción |
+| Método | Ruta | Acción |
 |---|---|---|
 | `GET` | `/posts` | Listar publicaciones |
 | `GET` | `/posts/:id` | Consultar una publicación |
-| `GET` | `/posts/author/:authorId` | Listar publicaciones de un autor junto con sus datos |
+| `GET` | `/posts/author/:authorId` | Listar publicaciones con datos del autor |
 | `POST` | `/posts` | Crear una publicación |
 | `PUT` | `/posts/:id` | Actualizar una publicación |
 | `DELETE` | `/posts/:id` | Eliminar una publicación |
 
-Ejemplo para crear o actualizar una publicación:
+Ejemplo de publicación:
 
 ```json
 {
@@ -170,16 +162,15 @@ Ejemplo para crear o actualizar una publicación:
 }
 ```
 
-El título, el contenido y el identificador de un autor existente son obligatorios.
+### Comentarios y salud
 
-### Comentarios
-
-| Método | Ruta | Descripción |
+| Método | Ruta | Acción |
 |---|---|---|
 | `GET` | `/posts/:postId/comments` | Listar comentarios de una publicación |
 | `POST` | `/posts/:postId/comments` | Crear un comentario |
+| `GET` | `/health` | Comprobar la API y su conexión con PostgreSQL |
 
-Ejemplo para crear un comentario:
+Ejemplo de comentario:
 
 ```json
 {
@@ -188,68 +179,43 @@ Ejemplo para crear un comentario:
 }
 ```
 
-En una base nueva, la tabla de comentarios se crea con `setup.sql`. Si ya tenías una base creada antes de agregar comentarios, aplicá la migración una sola vez:
+## Códigos HTTP
 
-```powershell
-psql -U postgres -d miniblog -f .\db\comments.sql
-```
-
-Para agregar los índices de las claves foráneas a una base existente, ejecutá también este script idempotente:
-
-```powershell
-psql -U postgres -d miniblog -f .\db\indexes.sql
-```
-
-### Estado del servicio
-
-| Método | Ruta | Descripción |
-|---|---|---|
-| `GET` | `/health` | Comprueba que la API responde y que PostgreSQL está conectado |
-
-## Respuestas HTTP
-
-- `200`: consulta o actualización exitosa.
+- `200`: consulta o actualización correcta.
 - `201`: recurso creado.
 - `204`: recurso eliminado.
 - `400`: datos inválidos o referencia inexistente.
-- `404`: recurso no encontrado.
-- `409`: email de autor duplicado.
-- `500`: error interno del servidor.
-- `503`: la API no puede conectarse a PostgreSQL (`/health`).
+- `404`: recurso o ruta no encontrados.
+- `409`: email duplicado.
+- `500`: error interno.
+- `503`: base de datos no disponible en `/health`.
 
 ## Pruebas
 
-Ejecutar la suite automatizada:
+Ejecutá todas las pruebas con:
 
 ```powershell
 npm.cmd test
 ```
 
-Las pruebas usan Supertest y reemplazan las consultas a la base de datos por simulaciones; no eliminan ni modifican los datos locales.
+Las pruebas usan Supertest y simulan las consultas a PostgreSQL para no modificar datos reales.
 
 ## Despliegue en Render
 
-El despliegue está pendiente. Para publicar la aplicación en Render:
+1. Creá una base PostgreSQL en Render.
+2. Creá un **Web Service** conectado a este repositorio y a la rama `main`.
+3. Configurá el comando de build `npm install` y el comando de inicio `npm start`.
+4. En **Environment** del Web Service, agregá `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` y `PGPASSWORD` con los datos internos de la base PostgreSQL. Elegí la misma región para ambos servicios.
+5. Al iniciar, `npm start` aplica las migraciones pendientes y luego levanta Express. No hace falta ejecutar los archivos de migración manualmente.
+6. Render proporciona la URL pública del Web Service. Probala agregando `/health`.
+7. Para cargar datos de ejemplo en la base remota, ejecutá el seed una sola vez usando `psql` y la URL externa de PostgreSQL. Mantené esa URL como secreto.
 
-1. En el [Dashboard de Render](https://dashboard.render.com/), creá una base de datos con **New > PostgreSQL**. Elegí una región y guardá el nombre de la base, el usuario y la contraseña.
-2. En la misma región, creá el servicio de la API con **New > Web Service** y conectá este repositorio de GitHub.
-3. Configurá el servicio: entorno **Node**, comando de build `npm install` y comando de inicio `npm start`.
-4. En **Environment** del Web Service, agregá `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` y `PGPASSWORD` usando los datos de conexión **internos** de la base PostgreSQL. Podés encontrarlos en la página de información de la base en Render. No pongas estos valores en el repositorio ni los compartas.
-5. Render asigna una URL pública al Web Service cuando termina el despliegue. Abrí esa dirección y agregá `/health` para comprobar la conexión. La URL interna de PostgreSQL es solo para la conexión entre servicios; no es la dirección pública de la API.
-6. Creá las tablas en PostgreSQL ejecutando `setup.sql` una sola vez. Para hacerlo desde tu computadora necesitás `psql` y la URL **externa** de la base, disponible en la página de conexión de PostgreSQL:
-
-   ```powershell
-   $env:DATABASE_URL = "URL_EXTERNA_DE_POSTGRES_DE_RENDER"
-   psql $env:DATABASE_URL -f .\setup.sql
-   Remove-Item Env:DATABASE_URL
-   ```
-
-   Si ya habías creado las tablas con el esquema anterior, ejecutá también `.\db\email-case-insensitive.sql` una sola vez para actualizar la unicidad del email. Mantené la URL externa como un secreto y no la escribas en archivos del proyecto ni la subas a GitHub.
+Las instancias gratuitas de Render pueden suspenderse por inactividad y tener límites de uso. Revisá las condiciones vigentes de Render antes de elegir un plan.
 
 ## Uso de herramientas de IA
 
-Para realizar este proyecto usé GitHub Copilot como apoyo para resolver dudas y entender algunos pasos de Express, PostgreSQL, Git y Render. También me ayudó a mejorar la documentación y a revisar algunas partes del código. Usé sus respuestas como orientación mientras trabajaba en el proyecto.
+Usé GitHub Copilot como apoyo para resolver dudas y entender partes de Express, PostgreSQL, Git y Render, además de revisar la documentación y la organización del proyecto.
 
 ## Repositorio
 
-El código fuente y el historial de cambios están disponibles en [GitHub](https://github.com/Caterinacoaloa/miniblog-api.).
+El código y su historial de cambios están en [GitHub](https://github.com/Caterinacoaloa/miniblog-api.).

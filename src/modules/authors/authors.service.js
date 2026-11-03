@@ -1,4 +1,4 @@
-const pool = require('../db/pool');
+const pool = require('../../config/database');
 
 async function listAuthors() {
   const { rows } = await pool.query(

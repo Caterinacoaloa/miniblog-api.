@@ -1,4 +1,4 @@
-const pool = require('../db/pool');
+const pool = require('../../config/database');
 
 async function listCommentsByPost(postId) {
   const { rows } = await pool.query(
@@ -28,7 +28,4 @@ async function createComment({ post_id, author_id, content }) {
   return rows[0];
 }
 
-module.exports = {
-  listCommentsByPost,
-  createComment,
-};
+module.exports = { listCommentsByPost, createComment };

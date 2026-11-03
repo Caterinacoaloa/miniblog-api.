@@ -1,4 +1,4 @@
-const pool = require('./db/pool');
+const pool = require('../src/config/database');
 
 async function checkDatabaseConnection() {
   try {

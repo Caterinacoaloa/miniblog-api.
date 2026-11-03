@@ -1,8 +1,8 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 const request = require('supertest');
-const pool = require('../db/pool');
-const { app } = require('../server');
+const pool = require('../src/config/database');
+const { app } = require('../src/app');
 
 const samplePost = {
   id: 21,

@@ -16,4 +16,6 @@ if (missingVariables.length > 0) {
   throw new Error(`Faltan variables de entorno: ${missingVariables.join(', ')}`);
 }
 
-module.exports = new Pool();
+const pool = new Pool();
+
+module.exports = pool;
