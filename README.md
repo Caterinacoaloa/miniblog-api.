@@ -10,7 +10,7 @@ API REST desarrollada como proyecto de práctica para administrar autores, publi
 - Probar las rutas con Node.js, `node:test` y Supertest.
 - Documentar la API con OpenAPI.
 
-## Tecnologías
+## Tecnologías utilizadas
 
 - Node.js y Express
 - PostgreSQL y `pg`
@@ -21,7 +21,7 @@ API REST desarrollada como proyecto de práctica para administrar autores, publi
 
 ```text
 .
-├── data/             # Datos de ejemplo usados por el proyecto
+├── data/             # Arrays de ejemplo de una etapa inicial; la API actual usa PostgreSQL
 ├── db/               # Conexión a PostgreSQL y scripts SQL adicionales
 ├── routes/           # Rutas y validaciones HTTP
 ├── services/         # Consultas SQL y lógica de acceso a datos
