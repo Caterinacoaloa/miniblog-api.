@@ -227,28 +227,28 @@ npm.cmd test
 
 Las pruebas usan Supertest y reemplazan las consultas a la base de datos por simulaciones; no eliminan ni modifican los datos locales.
 
-## Despliegue en Railway
+## Despliegue en Render
 
-El despliegue está pendiente hasta tener acceso a Railway. Cuando la cuenta esté habilitada:
+El despliegue está pendiente. Para publicar la aplicación en Render:
 
-1. En Railway, creá un proyecto nuevo con **Deploy from GitHub repo** y seleccioná este repositorio.
-2. Agregá un servicio PostgreSQL al proyecto.
-3. En las variables del servicio de la API, configurá `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` y `PGPASSWORD` con referencias a las variables del servicio PostgreSQL. Por ejemplo: `${{Postgres.PGHOST}}`. Reemplazá `Postgres` por el nombre real de tu servicio de base de datos.
-4. Railway inicia la API con `npm start` y asigna el puerto. Para comprobarla desde internet, en el servicio de la API abrí **Settings > Networking > Generate Domain**. Railway mostrará la URL pública de la API, con un formato similar a `https://nombre-de-tu-app.up.railway.app`. Probá esa dirección agregando `/health`.
-5. La conexión **interna** a PostgreSQL se configura con las variables del servicio de base de datos, como `PGHOST`; Railway las proporciona para la comunicación privada entre servicios. No uses la dirección interna de la base como URL pública de la API.
-6. Creá las tablas en PostgreSQL ejecutando `setup.sql` contra la base de Railway. Para ejecutarlo desde tu computadora necesitás `psql` y una URL de conexión pública de PostgreSQL, si Railway la ofrece o habilitás el acceso público. Por ejemplo:
+1. En el [Dashboard de Render](https://dashboard.render.com/), creá una base de datos con **New > PostgreSQL**. Elegí una región y guardá el nombre de la base, el usuario y la contraseña.
+2. En la misma región, creá el servicio de la API con **New > Web Service** y conectá este repositorio de GitHub.
+3. Configurá el servicio: entorno **Node**, comando de build `npm install` y comando de inicio `npm start`.
+4. En **Environment** del Web Service, agregá `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` y `PGPASSWORD` usando los datos de conexión **internos** de la base PostgreSQL. Podés encontrarlos en la página de información de la base en Render. No pongas estos valores en el repositorio ni los compartas.
+5. Render asigna una URL pública al Web Service cuando termina el despliegue. Abrí esa dirección y agregá `/health` para comprobar la conexión. La URL interna de PostgreSQL es solo para la conexión entre servicios; no es la dirección pública de la API.
+6. Creá las tablas en PostgreSQL ejecutando `setup.sql` una sola vez. Para hacerlo desde tu computadora necesitás `psql` y la URL **externa** de la base, disponible en la página de conexión de PostgreSQL:
 
    ```powershell
-   $env:DATABASE_URL = "URL_PUBLICA_DE_POSTGRES_DE_RAILWAY"
+   $env:DATABASE_URL = "URL_EXTERNA_DE_POSTGRES_DE_RENDER"
    psql $env:DATABASE_URL -f .\setup.sql
    Remove-Item Env:DATABASE_URL
    ```
 
-   Si Railway no ofrece una URL pública o preferís no habilitarla, ejecutá el SQL desde un entorno conectado a la red privada de Railway. Mantené cualquier URL de conexión como un secreto: no la escribas en archivos del proyecto ni la subas a GitHub. Ejecutá `setup.sql` una sola vez en la base remota.
+   Si ya habías creado las tablas con el esquema anterior, ejecutá también `.\db\email-case-insensitive.sql` una sola vez para actualizar la unicidad del email. Mantené la URL externa como un secreto y no la escribas en archivos del proyecto ni la subas a GitHub.
 
 ## Uso de herramientas de IA
 
-Para realizar este proyecto usé GitHub Copilot como apoyo para resolver dudas y entender algunos pasos de Express, PostgreSQL, Git y Railway. También me ayudó a mejorar la documentación y a revisar algunas partes del código. Usé sus respuestas como orientación mientras trabajaba en el proyecto.
+Para realizar este proyecto usé GitHub Copilot como apoyo para resolver dudas y entender algunos pasos de Express, PostgreSQL, Git y Render. También me ayudó a mejorar la documentación y a revisar algunas partes del código. Usé sus respuestas como orientación mientras trabajaba en el proyecto.
 
 ## Repositorio
 
