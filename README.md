@@ -216,7 +216,17 @@ Las instancias gratuitas de Render pueden suspenderse por inactividad y tener l�
 
 ## Uso de herramientas de IA
 
-Usé GitHub Copilot como apoyo para resolver dudas y entender partes de Express, PostgreSQL, Git y Render, además de revisar la documentación y la organización del proyecto.
+Durante el desarrollo usé GitHub Copilot como apoyo para entender y resolver algunas dudas. Por ejemplo, le pedí que me explicara paso a paso cómo integrar Swagger UI con Express y cómo usar la variable `DATABASE_URL` para conectarme a PostgreSQL desde mi computadora sin cambiar la configuración de Render.
+
+La IA me ayudó a entender qué archivos debía revisar, cómo mostrar la documentación de la API y cómo comprobar algunas rutas con Swagger. También me orientó cuando aparecieron errores en la terminal. Después revisé los cambios y probé la documentación y las consultas GET para comprobar que funcionaran.
+
+Algunos ejemplos de las consultas que hice, resumidos, son:
+
+- “Explicame paso a paso cómo integrar Swagger UI en mi API.”
+- “Ayudame a configurar la conexión local con `DATABASE_URL` sin afectar el despliegue en Render.”
+- “Explicame qué significa este error de conexión con PostgreSQL.”
+
+Usé las respuestas como guía y fui haciendo y comprobando los pasos en mi proyecto.
 
 ## Repositorio
 
