@@ -116,8 +116,6 @@ La API requiere estas variables tanto localmente como en Render:
 
 `.env.example` contiene valores de ejemplo. Las credenciales reales van en `.env` local o en el panel de variables de Render, nunca en GitHub.
 
-![alt text](image.png)
-
 ## Documentación de la API
 
 Para documentar y probar la API, integré Swagger UI. En [este enlace](https://miniblog-api-092l.onrender.com/docs) se pueden consultar las rutas, ver qué datos necesita cada operación y revisar las respuestas.
