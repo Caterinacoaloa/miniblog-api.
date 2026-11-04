@@ -116,9 +116,13 @@ La API requiere estas variables tanto localmente como en Render:
 
 `.env.example` contiene valores de ejemplo. Las credenciales reales van en `.env` local o en el panel de variables de Render, nunca en GitHub.
 
-## Endpoints
+![alt text](image.png)
 
-La especificación completa está en [`openapi.yaml`](./openapi.yaml). Para verla de forma interactiva, abrí [Swagger Editor](https://editor.swagger.io/) e importá el archivo. La API debe estar desplegada para poder enviar solicitudes a una URL pública.
+## Documentación de la API
+
+Para documentar y probar la API, integré Swagger UI. En [este enlace](https://miniblog-api-092l.onrender.com/docs) se pueden consultar las rutas, ver qué datos necesita cada operación y revisar las respuestas.
+
+La documentación está definida en el archivo [`openapi.yaml`](./openapi.yaml).
 
 ### Autores
 
